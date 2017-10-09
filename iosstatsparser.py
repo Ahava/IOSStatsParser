@@ -3,17 +3,24 @@ from pprint import pprint
 import steamapi
 import configparser
 
+# Read config file
 config = configparser.ConfigParser()
 config.read("config.ini")
 
+# Set variables and read them from config file
 statsfile = "demofile.json"
 steamapikey = config["Steam"]['ApiKey']
-convertsteamid = config["Steam"]['ConvertSteamId']
+convertsteamid = config["Steam"].getboolean('ConvertSteamId')
 
+# Load json file
 with open(statsfile) as datafile:
     statsdata = json.load(datafile)
 
+# Print seperator so office automatically opens the file correctly
+print("sep=,")
+
 # Taken from https://stackoverflow.com/questions/36463687/how-can-i-get-a-steamid-64-from-a-steamid-in-python
+# Converts a normal steamid to it's 64bit version
 def steamid_to_64bit(steamid):
     steam64id = 76561197960265728 # I honestly don't know where
                                     # this came from, but it works...
@@ -23,53 +30,65 @@ def steamid_to_64bit(steamid):
         steam64id += 1
     return steam64id
 
+# Queries the Steam API to get a players name from the 64bit steamid
 def steamid_to_name(steamid64):
+    # Authenticate with the Steamapi
     steamapi.core.APIConnection(api_key=steamapikey, validate_key=True)
+    # Return players name
     return steamapi.user.SteamUser(steamid64).name
 
 def eventData():
+    # Print header row 
     print(
         "Event",
+        "Second",
         "Period",
         "Player 1 Steamid",
         "Player 1 Name",
         "Player 2 Steamid",
         "Player 2 Name",
-        "Second",
         "Team",
         sep=','
     )
 
+    # Loop through all of the events
     for event in statsdata["matchData"]["matchEvents"]:
+        # Sort out (null) events
         if not event["event"] == "(null)":
 
+            # Create 2 empty strings for players name so print doesn't error
             player1Name = ""
             player2Name = ""
 
-            if convertsteamid == True:
-                player1SteamId = str(event["player1SteamId"])
-                player2SteamId = str(event["player2SteamId"])
+            # Convert the Steamid to strings
+            player1SteamId = str(event["player1SteamId"])
+            player2SteamId = str(event["player2SteamId"])
 
+            # Convert the steamapi to the username if set to true in config
+            if convertsteamid:
                 if player1SteamId:
                     player1Name = steamid_to_name(steamid_to_64bit(player1SteamId))
                 if player2SteamId:
                     player2Name = steamid_to_name(steamid_to_64bit(player2SteamId))
 
+            # Print the event stats
             print(
                 event["event"],
-                event["period"],
-                event["player1SteamId"],
-                player1Name,
-                event["player2SteamId"],
-                player2Name,
                 event["second"],
+                event["period"],
+                player1SteamId,
+                player1Name,
+                player2SteamId,
+                player2Name,
                 event["team"], 
                 sep=','
             )
     
+    # Print a newline to seperate different statistic sets
     print("\n")
 
 def teamData():
+    # Print header row 
     print(
         "Team Name",
         "Side",
@@ -102,27 +121,48 @@ def teamData():
         sep=","
     )
 
+    # Iterate through overall team results in stats object
     for teams in statsdata["matchData"]["teams"]:
+        # Create empty new string totalstats in which the stats are being written into
         totalstats = ""
+        # Get variables from object and convert them to string
         name = str(teams["matchTotal"]["name"])
         side = str(teams["matchTotal"]["side"])
         isMix = str(teams["matchTotal"]["isMix"])
 
+        # Assemble first set of totalstats
         totalstats = name + "," + side + "," + isMix + ","
 
-
+        # Iterate through all the statistics
         for stat in teams["matchTotal"]["statistics"]:
+            # Convert the statistic to a string
             statsstring = str(stat)
+            # Replace spaces for formatting
             statsstring.replace(" ", "")
+            # Add the statistic to totalstring
             totalstats = totalstats + statsstring + ","
 
+        #Remove trailing comma from totalstats
         totalstats = totalstats[:-1]
         print(totalstats)
 
+    # Print a newline to seperate different statistic sets
     print("\n")
 
-eventData()
-teamData()
+def playerData():
+    for player in statsdata["matchData"]["players"]:
+        totalstats = ""
+        name = str(player["info"]["name"])
+        steamId = str(player["info"]["steamId"])
+
+        totalstats = name + "," + steamId
+
+        print(totalstats)
+
+
+playerData()
+#eventData()
+#teamData()
 
 #for player in statsdata["matchData"]["players"]:
     #pprint(player["info"]["steamId"])
