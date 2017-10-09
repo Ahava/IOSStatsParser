@@ -8,6 +8,7 @@ config.read("config.ini")
 
 statsfile = "demofile.json"
 steamapikey = config["Steam"]['ApiKey']
+convertsteamid = config["Steam"]['ConvertSteamId']
 
 with open(statsfile) as datafile:
     statsdata = json.load(datafile)
@@ -27,19 +28,32 @@ def steamid_to_name(steamid64):
     return steamapi.user.SteamUser(steamid64).name
 
 def eventData():
+    print(
+        "Event",
+        "Period",
+        "Player 1 Steamid",
+        "Player 1 Name",
+        "Player 2 Steamid",
+        "Player 2 Name",
+        "Second",
+        "Team",
+        sep=','
+    )
+
     for event in statsdata["matchData"]["matchEvents"]:
         if not event["event"] == "(null)":
 
             player1Name = ""
             player2Name = ""
 
-            player1SteamId = str(event["player1SteamId"])
-            player2SteamId = str(event["player2SteamId"])
+            if convertsteamid == True:
+                player1SteamId = str(event["player1SteamId"])
+                player2SteamId = str(event["player2SteamId"])
 
-            if player1SteamId:
-                player1Name = steamid_to_name(steamid_to_64bit(player1SteamId))
-            if player2SteamId:
-                player2Name = steamid_to_name(steamid_to_64bit(player2SteamId))
+                if player1SteamId:
+                    player1Name = steamid_to_name(steamid_to_64bit(player1SteamId))
+                if player2SteamId:
+                    player2Name = steamid_to_name(steamid_to_64bit(player2SteamId))
 
             print(
                 event["event"],
