@@ -166,7 +166,7 @@ def teamData():
             # Add the statistic to totalstring
             totalstats = totalstats + statsstring + ","
 
-        #Remove trailing comma from totalstats
+        # Remove trailing comma from totalstats
         totalstats = totalstats[:-1]
         print(totalstats, file=csvfile)
 
@@ -182,7 +182,6 @@ def playerData():
         "Steam ID",
         "Position",
         "Team",
-        "Is Mix",
         "Red Cards",
         "Yellow Cards",
         "Fouls",
@@ -250,7 +249,7 @@ def playerData():
             totalstats = totalstats + statsstring + ","
 
 
-        #Remove trailing comma from totalstats
+        # Remove trailing comma from totalstats
         totalstats = totalstats[:-1]
         print(totalstats, file=csvfile)
     
