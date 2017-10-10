@@ -168,9 +168,3 @@ def playerData():
 playerData()
 eventData()
 teamData()
-
-#for player in statsdata["matchData"]["players"]:
-    #pprint(player["info"]["steamId"])
-
-#print(statsdata["matchData"]["matchInfo"]["periods"])
-
