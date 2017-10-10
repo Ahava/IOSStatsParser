@@ -2,6 +2,7 @@ import json
 from pprint import pprint
 import steamapi
 import configparser
+import csv
 
 # Read config file
 config = configparser.ConfigParser()
@@ -13,11 +14,16 @@ steamapikey = config["Steam"]['ApiKey']
 convertsteamid = config["Steam"].getboolean('ConvertSteamId')
 
 # Load json file
-with open(statsfile) as datafile:
+with open(statsfile, 'r', encoding='utf-8') as datafile:
     statsdata = json.load(datafile)
 
+# Open csv for writing
+csvfile = open('stats.csv', 'w', newline='', encoding='utf-8')
+statswriter = csv.writer(csvfile, delimiter=',',
+                        quotechar='"', quoting=csv.QUOTE_MINIMAL)
+
 # Print seperator so office automatically opens the file correctly
-print("sep=,")
+print("sep=,", file=csvfile)
 
 # Taken from https://stackoverflow.com/questions/36463687/how-can-i-get-a-steamid-64-from-a-steamid-in-python
 # Converts a normal steamid to it's 64bit version
@@ -48,7 +54,8 @@ def eventData():
         "Player 2 Steamid",
         "Player 2 Name",
         "Team",
-        sep=','
+        sep=',',
+        file=csvfile
     )
 
     # Loop through all of the events
@@ -81,11 +88,12 @@ def eventData():
                 player2SteamId,
                 player2Name,
                 event["team"], 
-                sep=','
+                sep=',',
+                file=csvfile
             )
     
     # Print a newline to seperate different statistic sets
-    print("\n")
+    print("\n", file=csvfile)
 
 def teamData():
     # Print header row 
@@ -118,7 +126,8 @@ def teamData():
         "Possession",
         "Distance Covered",
         "Keeper Saves Caught",
-        sep=","
+        sep=",",
+        file=csvfile
     )
 
     # Iterate through overall team results in stats object
@@ -144,10 +153,10 @@ def teamData():
 
         #Remove trailing comma from totalstats
         totalstats = totalstats[:-1]
-        print(totalstats)
+        print(totalstats, file=csvfile)
 
     # Print a newline to seperate different statistic sets
-    print("\n")
+    print("\n", file=csvfile)
 
 def playerData():
     for player in statsdata["matchData"]["players"]:
@@ -157,12 +166,12 @@ def playerData():
 
         totalstats = name + "," + steamId
 
-        print(totalstats)
+        print(totalstats, file=csvfile)
 
 
 playerData()
-#eventData()
-#teamData()
+eventData()
+teamData()
 
 #for player in statsdata["matchData"]["players"]:
     #pprint(player["info"]["steamId"])
