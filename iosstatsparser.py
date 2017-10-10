@@ -1,13 +1,13 @@
 import json
-from pprint import pprint
 import steamapi
 import configparser
+
 # Read config file
 config = configparser.ConfigParser()
 config.read("config.ini")
 
 # Set variables and read them from config file
-statsfile = "demofile.json"
+statsfile = "2017.10.08_19h.58m.01s_nextgen-vs-natural.talent_10-0.json"
 steamapikey = config["Steam"]['ApiKey']
 convertsteamid = config["Steam"].getboolean('ConvertSteamId')
 
@@ -155,15 +155,85 @@ def teamData():
     print("\n", file=csvfile)
 
 def playerData():
+    # Print header row 
+    print(
+        "Player Name",
+        "Steam ID",
+        "Position",
+        "Team",
+        "Is Mix",
+        "Red Cards",
+        "Yellow Cards",
+        "Fouls",
+        "Fouls Suffered",
+        "Sliding Tackles",
+        "Sliding Tackles Completed",
+        "Goals Conceded",
+        "Shots",
+        "Shots on Goal",
+        "Passes Completed",
+        "Interceptions",
+        "Offsides",
+        "Goals",
+        "Own Goals",
+        "Assists",
+        "Passes",
+        "Free Kicks",
+        "Penalties",
+        "Corners",
+        "Throw Ins",
+        "Keeper Saves",
+        "Goal Kicks",
+        "Possession",
+        "Distance Covered",
+        "Keeper Saves Caught",
+        sep=",",
+        file=csvfile
+    )
+
+    # Iterate through all player stats in stats object
     for player in statsdata["matchData"]["players"]:
-        totalstats = ""
+        # Set name and Steam ID
         name = str(player["info"]["name"])
         steamId = str(player["info"]["steamId"])
+        
+        # Set empty variables to be set later
+        position = ""
+        team = ""
+        totalstats = ""
+        statistics = []
 
-        totalstats = name + "," + steamId
+        # Iterate through the different match periods
+        for period in player["matchPeriodData"]:
+            # Get position and team
+            position = period["info"]["position"]
+            team = period["info"]["team"]
+            
+            # Assign the first statistics array to the statistics variable if it is empty
+            if not statistics:
+                statistics = period["statistics"]
+            else:
+                # If it is not empty, combine the two arrays into one
+                statistics = [x + y for x, y in zip(statistics, period["statistics"])]
 
+        # Assign first batch of statistics to totalstats variable
+        totalstats = name + "," + steamId + "," + position + "," + team + ","
+
+        # Iterate through all the statistics
+        for stat in statistics:
+            # Convert the statistic to a string
+            statsstring = str(stat)
+            # Replace spaces for formatting
+            statsstring.replace(" ", "")
+            # Add the statistic to totalstats
+            totalstats = totalstats + statsstring + ","
+
+
+        #Remove trailing comma from totalstats
+        totalstats = totalstats[:-1]
         print(totalstats, file=csvfile)
-
+    
+    print("\n", file=csvfile)
 
 playerData()
 eventData()
