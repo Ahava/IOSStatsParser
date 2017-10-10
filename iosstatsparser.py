@@ -1,22 +1,38 @@
 import json
 import steamapi
 import configparser
+import os.path
+import sys
 
 # Read config file
 config = configparser.ConfigParser()
 config.read("config.ini")
 
 # Set variables and read them from config file
-statsfile = "2017.10.08_19h.58m.01s_nextgen-vs-natural.talent_10-0.json"
 steamapikey = config["Steam"]['ApiKey']
 convertsteamid = config["Steam"].getboolean('ConvertSteamId')
+
+# Check if filename is passed, if not, exit
+if len(sys.argv) > 1:
+    statsfile = sys.argv[1]
+    statsfilename = os.path.splitext(statsfile)[0]
+else:
+    print("You need to pass a filename")
+    sys.exit()
+
+# Check if file exists, if not, exit
+if not os.path.isfile(statsfile):
+    print("File does not exist!")
+    sys.exit()
 
 # Load json file
 with open(statsfile, 'r', encoding='utf-8') as datafile:
     statsdata = json.load(datafile)
 
+csvfilename = statsfilename + ".csv"
+
 # Open csv for writing
-csvfile = open('stats.csv', 'w', newline='', encoding='utf-8')
+csvfile = open(csvfilename, 'w', newline='', encoding='utf-8')
 
 # Print seperator so office automatically opens the file correctly
 print("sep=,", file=csvfile)
@@ -40,6 +56,7 @@ def steamid_to_name(steamid64):
     return steamapi.user.SteamUser(steamid64).name
 
 def eventData():
+    print("Starting to parse event data")
     # Print header row 
     print(
         "Event",
@@ -90,8 +107,10 @@ def eventData():
     
     # Print a newline to seperate different statistic sets
     print("\n", file=csvfile)
+    print("Event data parsed")
 
 def teamData():
+    print("Starting to parse team data")
     # Print header row 
     print(
         "Team Name",
@@ -153,8 +172,10 @@ def teamData():
 
     # Print a newline to seperate different statistic sets
     print("\n", file=csvfile)
+    print("Team data parsed")
 
 def playerData():
+    print("Starting to parse player data")
     # Print header row 
     print(
         "Player Name",
@@ -234,6 +255,7 @@ def playerData():
         print(totalstats, file=csvfile)
     
     print("\n", file=csvfile)
+    print("Player data parsed")
 
 playerData()
 eventData()
