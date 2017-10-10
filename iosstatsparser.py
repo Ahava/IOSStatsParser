@@ -2,8 +2,6 @@ import json
 from pprint import pprint
 import steamapi
 import configparser
-import csv
-
 # Read config file
 config = configparser.ConfigParser()
 config.read("config.ini")
@@ -19,8 +17,6 @@ with open(statsfile, 'r', encoding='utf-8') as datafile:
 
 # Open csv for writing
 csvfile = open('stats.csv', 'w', newline='', encoding='utf-8')
-statswriter = csv.writer(csvfile, delimiter=',',
-                        quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
 # Print seperator so office automatically opens the file correctly
 print("sep=,", file=csvfile)
