@@ -5,6 +5,7 @@ config.ini
 .vscode
 2017.10.08_19h.58m.01s_nextgen-vs-natural.talent_10-0.json
 stats.csv
+demofile.csv
 
 # Created by https://www.gitignore.io/api/python,windows,visualstudiocode
 
